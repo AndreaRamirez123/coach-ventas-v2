@@ -1,0 +1,74 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitives
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) || request.auth.token.email == 'jose_forero@cun.edu.co' || request.auth.token.email == 'andrea_ramirezt@cun.edu.co' || request.auth.token.email == 'andres_carrillogo@cun.edu.co'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    function isValidEvaluation(data) {
+      return data.keys().hasAll(['userId', 'updatedAt'])
+        && data.userId is string
+        && data.userId.size() > 0
+        && data.userId.size() <= 128
+        && data.updatedAt is timestamp
+        // Optional arrays based on state
+        && (!('likertPC' in data) || data.likertPC is list)
+        && (!('likertEA' in data) || data.likertEA is list)
+        && (!('likertAA' in data) || data.likertAA is list)
+        && (!('fcPairs' in data) || data.fcPairs is list)
+        && (!('microscenarios' in data) || data.microscenarios is list)
+        && (!('sjtVignettes' in data) || data.sjtVignettes is list)
+        && (!('globalDimensions' in data) || data.globalDimensions is list)
+        && (!('globalInstrument' in data) || data.globalInstrument is map)
+        && (!('judgeData' in data) || data.judgeData is map);
+    }
+
+    match /admins/{adminId} {
+      allow read: if (isSignedIn() && request.auth.uid == adminId) || (isAdmin() && isValidId(adminId));
+      allow write: if false;
+    }
+
+    match /app_users/{userId} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow create: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow update: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow delete: if isAdmin() && isValidId(userId);
+    }
+
+    match /evaluations/{evaluationId} {
+      allow get: if (isSignedIn() && request.auth.uid == evaluationId) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isValidId(evaluationId)
+        && evaluationId == request.auth.uid
+        && isValidEvaluation(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() && isValidEvaluation(incoming()) && (
+        (existing().userId == request.auth.uid && incoming().userId == request.auth.uid && incoming().updatedAt == request.time) ||
+        isAdmin()
+      );
+
+      allow delete: if isAdmin() && isValidId(evaluationId);
+    }
+
+    // Coach de Ventas IA (coach-de-ventas-v2): single shared app-state document.
+    // This app's own login is not backed by Firebase Auth for email/password users,
+    // so access here cannot be scoped by request.auth — it must stay a narrowly-scoped
+    // open document rather than gated by isSignedIn()/isAdmin() above.
+    match /app_data/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

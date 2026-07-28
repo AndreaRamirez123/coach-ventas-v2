@@ -1,0 +1,7 @@
+{
+  "name": "Coach de Ventas V5",
+  "description": "Un asistente impulsado por IA para entrenamiento en ventas y servicio al cliente. Sube tus guiones y practica conversaciones en tiempo real con un asesor comercial o un cerrador de ventas.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

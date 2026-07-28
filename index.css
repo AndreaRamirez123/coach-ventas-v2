@@ -1,0 +1,25 @@
+:root {
+  --brand-primary: #0ea5e9;
+  --brand-secondary: #a855f7;
+}
+
+.brand-gradient-text {
+  background-image: linear-gradient(to right, var(--brand-primary), var(--brand-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-gradient-bg {
+  background-image: linear-gradient(to right, var(--brand-primary), var(--brand-secondary));
+}
+
+.brand-btn {
+  background: linear-gradient(to bottom, var(--brand-primary), color-mix(in srgb, var(--brand-primary) 75%, black));
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  header { padding: 10px !important; }
+  .mobile-tight { padding: 10px !important; }
+}
