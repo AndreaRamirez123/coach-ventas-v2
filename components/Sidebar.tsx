@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { PracticeMode, VoiceName, Theme } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { GEMINI_API_KEY } from '../services/geminiConfig';
 import { GoogleGenAI, Modality } from '@google/genai';
 import { decode, decodeAudioData } from '../services/audioUtils';
 
@@ -160,7 +161,7 @@ export default function Sidebar({ isOpen, onClose, theme, useFreeMode, onUseFree
                 return;
             }
 
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
             const models = ["gemini-2.5-flash-preview-tts", "gemini-2.5-flash-native-audio-preview-09-2025"];
             let base64Audio: string | undefined;
 

@@ -1,6 +1,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
+import { GEMINI_API_KEY } from '../services/geminiConfig';
 import { PracticeMode, TranscriptTurn, VoiceName, UploadedFile, AiRole, User, EvaluationResult, Theme, Report } from '../types';
 import useLiveConversation from '../hooks/useLiveConversation';
 import { decode, decodeAudioData } from '../services/audioUtils';
@@ -24,9 +25,9 @@ interface SalesSimulatorProps {
   companyBrand?: { name: string; logoDataUrl?: string; primaryColor?: string; secondaryColor?: string; };
 }
 
-const CHAT_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+const CHAT_MODELS = ['gemini-2.5-flash', 'gemini-3.6-flash'];
 const EVAL_MODEL = 'gemini-2.5-flash';
-const RUNTIME_API_KEY = (import.meta as any)?.env?.VITE_GEMINI_API_KEY || process.env.API_KEY || process.env.GEMINI_API_KEY || '';
+const RUNTIME_API_KEY = GEMINI_API_KEY;
 
 const withTimeout = async <T,>(promise: Promise<T>, ms = 12000): Promise<T> => {
   return await Promise.race([

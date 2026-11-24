@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob } from '@google/genai';
 import { TranscriptTurn, ConversationStatus, VoiceName } from '../types';
+import { GEMINI_API_KEY } from '../services/geminiConfig';
 import { encode, decode, decodeAudioData } from '../services/audioUtils';
 
 type LiveSession = Awaited<ReturnType<GoogleGenAI['live']['connect']>>;
@@ -189,7 +190,7 @@ const useLiveConversation = () => {
       });
       mediaStreamRef.current = stream;
 
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
       const connectPromise = ai.live.connect({
         model: 'gemini-2.5-flash-native-audio-preview-09-2025',
